@@ -1,6 +1,7 @@
 
 """Demonstrates a custom download-plugin for the BigFix Root Server.  This sample demonstrates performing downloads using a GitHub User Token to authenticate and download file(s)"""
 #curl --header "Authorization: token github_pat_XXXXXXX" https://raw.githubusercontent.com/Jwalker107/AuthDownloadPlugin/main/README.md
+#curl -L -H "Accept: application/octet-stream" -H "Authorization: token github_pat_XXX" https://api.github.com/repos/Jwalker107/AuthDownloadPlugin/releases/assets/141569199 -O
 
 import os
 import sys
@@ -187,6 +188,7 @@ def main():
     session = requests.Session()
     session.headers.update({"User-Agent": "Wget/1.14 (linux-gnu)"})
     session.headers.update({"Authorization": f"token {token}"})
+    session.headers.update({"Accept": "application/octet-stream"})
 
     # This is tuned for ease-of-use rather than performance.
     # Currently each download is performed sequentially, not in parallel
