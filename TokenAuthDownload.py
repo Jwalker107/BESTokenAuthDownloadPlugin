@@ -1,26 +1,15 @@
 
+"""Demonstrates a custom download-plugin for the BigFix Root Server.  This sample demonstrates performing downloads using a GitHub User Token to authenticate and download file(s)"""
 #curl --header "Authorization: token github_pat_XXXXXXX" https://raw.githubusercontent.com/Jwalker107/AuthDownloadPlugin/main/README.md
-# requires "pip install requests"
-import requests
+
 import os
+import sys
 import tempfile
-
-# to suppress SSL "untrusted certificate" warnings
-import warnings
 import json
-
-# For testing download timings
-import time
-
 import argparse
 import keyring
+import requests
 import getpass
-# Suppress InsecureRequestWarning warnings from requests module
-#  These are generated when we do not have a trusted CA certificate on the BES Server
-from requests.packages.urllib3.exceptions import InsecureRequestWarning  # type: ignore
-
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
 
 def download_file_stream(
     session=requests.Session(),
@@ -48,17 +37,6 @@ def download_file_stream(
                 if chunk_number % block_count == 0:
                     f.flush()
                     os.fsync(f.fileno())
-                    # print(".")
-
-def read_config(config_file):
-    with open(config_file, "r") as json_file:
-        config = json.load(json_file)
-    return config
-
-def write_config(config, config_file):
-    json_object = json.dumps(config, indent=4)
-    with open(config_file, "w") as json_file:
-        json_file.write(json_object)
 
 def get_downloads(filepath):
     with open(filepath, "r") as file:
@@ -97,34 +75,26 @@ def prompt_password(prompt="Enter password:", confirm=None):
             return prompt_password(prompt,confirm)
     return password
 
-def main():
-    scriptPath = os.path.dirname(os.path.realpath(__file__))
-    # todo - check config file existence, replace with keyring
-
+def get_args(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--downloads", "-d", type=str)
     group.add_argument("--set_token", "-s", help="Save authentication token to keyring", action="store_true")
+    args=parser.parse_args(argv)
+    return args
 
-    parser.add_argument(
-        "--verbose",
-        "-v",
-        help="Provide verbose output",
-        default=False,
-        action="store_true",
-    )
-    
-    # Read args from command line
-    # args = parser.parse_args()
 
-    # or... pass a list to parse_args to test parse as if it were the command-line options for debugging
-    # args = parser.parse_args(
-    #     ["--set_token"]
+def main():
+  
+    # examples of simulated command-line arguments, for use in a python debugger:
+    # args=get_args(["--set_token"])
+
+    # args = get_args(
+    #     ["--downloads", os.path.join(os.path.dirname(os.path.realpath(__file__)), "downloads.json"), "--verbose"]
     # )
-    
-    args = parser.parse_args(
-        ["--downloads", os.path.join(scriptPath, "downloads.json"), "--verbose"]
-    )
+
+    # execute using the default command-line arguments
+    args=get_args()
 
     if args.set_token:
         keyring.set_password(
@@ -132,12 +102,8 @@ def main():
             "",
             prompt_password("Enter Token to store:"),
         )
-    
-    config_file = os.path.join(scriptPath, "config.json")
-    config = read_config(config_file)
-
-    verbose = args.verbose
-    
+        
+     
     plugin_system_name = "TokenAuthDownload"
     
     if args.downloads is not None:
@@ -153,13 +119,11 @@ def main():
         session.headers.update({"User-Agent": "Wget/1.14 (linux-gnu)"})
         session.headers.update({"Authorization": f"token {token}"})
 
+        # This is tuned for ease-of-use rather than performance.
+        # Currently each download is performed sequentially, not in parallel
         for download in downloads_listing.get("downloads", {}):
             result = {}
             result["id"] = download["id"]
-            ## Sample download here
-            # replace TokenAuthDownload://raw.githubusercontent.com/Jwalker107/AuthDownloadPlugin/main/README.md
-            # with https://raw.githubusercontent.com/Jwalker107/AuthDownloadPlugin/main/README.md
-
             url = download.get("url").replace(plugin_system_name, "https")
             # download_file_stream will raise an exception on HTTP errors in addition to connection errors
             # so any response other than 'ok' will be caught by this exception handler
@@ -177,6 +141,7 @@ def main():
                 result["success"] = False
                 result["error"] = str(e)
             results.append(result)
+        # Send download status results to the downloads_listing file, where it will be read by the Server to provide action status / error messages to the console
         sendResults(results, downloads_listing)
 
 if __name__ == "__main__":
