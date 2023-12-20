@@ -39,6 +39,10 @@ To remove the download plugin, create file "plugin_TokenAuthDownload" and place 
     }
 
 To use the plugin, create a download action message such as
-`prefetch bigfix.png sha1:9b84643d03b11e0d196c2967d7f870b1c212c165 size:4083 TokenAuthDownload://raw.githubusercontent.com/Jwalker107/AuthDownloadPlugin/blob/main/bigfix.png sha256:b658f7f01256d9f4a30270375050b829a99cc9ad8738463bc7c582fd6c3ee9bb`
+`prefetch bigfix.png sha1:9b84643d03b11e0d196c2967d7f870b1c212c165 size:4083 TokenAuthDownload://api.github.com/repos/Jwalker107/AuthDownloadPlugin/releases/assets/141569199 sha256:b658f7f01256d9f4a30270375050b829a99cc9ad8738463bc7c582fd6c3ee9bb`
+
+To get the URL to a release asset for a GitHub repo, you may use a REST API client or curl command to retrieve, such as
+
+    curl -H "Accept: application/json" -H "Authorization: token github_pat_XXX" https://api.github.com/repos/Jwalker107/AuthDownloadPlugin/releases
 
 For troubleshooting, check the logfile.txt in the download plugin directory.  For more detailed logging, modify config.json and set log_level to 20 or to 10 (lower log level = more messages)
