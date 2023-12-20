@@ -79,7 +79,7 @@ def sendResults(results, options):
     with open(
         results_file, "w"
     ) as status_file:
-        json.dump(results, status_file)
+        json.dump(message, status_file)
 
 def prompt_password(prompt="Enter password:", confirm=None):
     # Prompts the user to enter a password
@@ -196,4 +196,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    sys.exit()
 
