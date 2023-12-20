@@ -96,12 +96,12 @@ def sendResults(results, options):
     with open(results_file, "w") as status_file:
         json.dump(message, status_file)
 
-def get_args(argv=sys.argv[1:]):
+def get_args():
     """Configure and read command-line parameters"""
     # when invoked by the root server, the '--downloads <download_message_file>' arguments will be passed
     parser = argparse.ArgumentParser()
     parser.add_argument("--downloads", "-d", type=str, required=True)
-    args=parser.parse_args(argv)
+    args=parser.parse_args()
     return args
 
 def get_config(config_file):
@@ -184,7 +184,8 @@ def main():
     options = get_options(args.downloads)
 
     results = []
-    logging.info("Creating requests.Session")
+    # creating a requests.Session and apply headers for github downloads
+    # These headers are reused for each download request
     session = requests.Session()
     session.headers.update({"User-Agent": "Wget/1.14 (linux-gnu)"})
     session.headers.update({"Authorization": f"token {token}"})
@@ -195,12 +196,12 @@ def main():
     for download in options.get("downloads", []):
         results.append(process_download(download, plugin_system_name, session))
 
-    # Send download status results to the downloads_listing file, where it will be read by the Server to provide action status / error messages to the console
+    # Send download status results to the message file, where it will be read by the Server to provide action status / error messages to the console
     logging.info(f"Results: {str(results)}")
     sendResults(results, options)
     logging.info("Plugin finished")
 
 if __name__ == "__main__":
     main()
-    sys.exit()
+    
 
