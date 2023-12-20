@@ -1,5 +1,9 @@
 
-"""Demonstrates a custom download-plugin for the BigFix Root Server.  This sample demonstrates performing downloads using a GitHub User Token to authenticate and download file(s)"""
+"""
+THIS TOOL IS UNSUPPORTED
+Demonstrates a custom download-plugin for the BigFix Root Server.
+This sample demonstrates performing downloads using a GitHub User Token to authenticate and download file(s)
+"""
 #curl --header "Authorization: token github_pat_XXXXXXX" https://raw.githubusercontent.com/Jwalker107/AuthDownloadPlugin/main/README.md
 #curl -L -H "Accept: application/octet-stream" -H "Authorization: token github_pat_XXX" https://api.github.com/repos/Jwalker107/AuthDownloadPlugin/releases/assets/141569199 -O
 
@@ -11,7 +15,7 @@ import keyring
 import requests
 import logging
 
-def init_logging(logfile:str, level:int=20 ):
+def init_logging(logfile:str, level:int=20 ) -> None:
     # Creates the global 'logging' module and 'statuslog' variable - for debug and status logs
     # Creates the directories if they do not exist
     # Logs are created in the 'log' directory relative to the running script
@@ -22,19 +26,19 @@ def init_logging(logfile:str, level:int=20 ):
         # Default log level is INFO but overridden by the config file after it is read
         level=level,
         format="[%(asctime)s] %(funcName)20s() [%(levelname)s] %(message)s",
+        # Log to both a file and to stdout
         handlers=[logging.FileHandler(logfile), logging.StreamHandler()],
     )
     logging.info('Logging started to "%s"', logfile)
 
-
-
 def download_file_stream(
-    session=requests.Session(),
-    url=None,
-    output_file_path=None,
-    chunk_size=8192,
-    block_count=4,
-):
+    session:requests.Session = requests.Session(),
+    url:str = None,
+    output_file_path:str = None,
+    chunk_size:int = 8192,
+    block_count:int = 4,
+) -> None:
+    """Uses an established requests.Session to download a file, streaming in blocks of chunk_size and flushing to disk every block_count chunks."""
     # Perform a streaming download to reduce memory footprint (otherwise the entire file download loads in RAM)
     if url is None or output_file_path is None:
         raise ValueError(f"url or output_file_path not defined")
@@ -56,7 +60,7 @@ def download_file_stream(
                     f.flush()
                     os.fsync(f.fileno())
 
-def get_options(filepath):
+def get_options(filepath:str) -> dict:
     """Loads the options from the file specified in the --downloads argument"""
     # the --downloads <file> references a JSON configuration file generally stored in the TEMP directory, i.e.
     # c:\windows\temp\big97A8.tmp
@@ -65,15 +69,10 @@ def get_options(filepath):
     # 'downloads' is an array of download requests.  the 'file' is where the download plugin should save the download
     # Sample content:
     # {
-    # "id":1702650720,
-    # "inbox":"C:\\BES\\Server\\Mirror Server\\inbox",  # path in which to store a message file with results
+    # "id":1702650720, "inbox":"C:\\BES\\Server\\Mirror Server\\inbox",
     # "downloads":[
-    #     {
-    #      "id":57,
-    #      "file":"C:\\BES\\Server\\wwwrootbes\\bfmirror\\downloads\\ActiveDownloads\\indexed_148295_1",
-    #      "url":"TokenAuthDownload:\u002f\u002fraw.githubusercontent.com\u002fJwalker107\u002fAuthDownloadPlugin\u002fmain\u002fREADME.md",
-    #      "sha1":{"algorithm":"sha1","value":"f919f61f325ff604e9359f8f448d3d1120cc81f2"},
-    #      "size":79
+    #     { "id":57, "file":"C:\\BES\\Server\\wwwrootbes\\bfmirror\\downloads\\ActiveDownloads\\indexed_148295_1", "url":"TokenAuthDownload:\u002f\u002fraw.githubusercontent.com\u002fJwalker107\u002fAuthDownloadPlugin\u002fmain\u002fREADME.md",
+    #      "sha1":{"algorithm":"sha1","value":"f919f61f325ff604e9359f8f448d3d1120cc81f2"}, "size":79
     #     }
     #     ]
     # }
@@ -81,7 +80,7 @@ def get_options(filepath):
         options = json.load(file)
     return options
 
-def sendResults(results, options):
+def sendResults(results:list[dict], options:dict) -> None:
     """Create a message file detailing download results to the server"""
     # sample message: 
     #  {"message": "status", "id": 1702650720, "status": [{"id": 57, "success": true, "error": null}]}
@@ -96,7 +95,7 @@ def sendResults(results, options):
     with open(results_file, "w") as status_file:
         json.dump(message, status_file)
 
-def get_args():
+def get_args() -> argparse.Namespace:
     """Configure and read command-line parameters"""
     # when invoked by the root server, the '--downloads <download_message_file>' arguments will be passed
     parser = argparse.ArgumentParser()
@@ -104,24 +103,41 @@ def get_args():
     args=parser.parse_args()
     return args
 
-def get_config(config_file):
+def get_config(config_file:str) -> dict:
     """Read configuration from config.json"""
     # config.json stores options such as the download plugin name, log file name & log level, and optionally may have a 'token' value to store
-    with open(config_file, 'r') as json_file:
-        
-        config=json.load(json_file)
+    try:
+        with open(config_file, 'r') as json_file:
+            config=json.load(json_file)
+    except Exception as e:
+        print (f'Error loading configuration file {config_file} : {str(e)}')
+        # Config not loaded, run with defaults
+        config= {}
     return config
 
-def set_config(config, config_file):
+def update_token(config:dict, config_file:str) -> None:
+    """Checks whether an updated token is present in the configuration file.  If so, update the keyring and remove the token from the file."""
+    if config.get('token', None) is not None:
+        logging.info('Storing token to keyring')
+        keyring.set_password(
+            config.get('plugin_name', 'TokenAuthDownload'),
+            "",
+            config.get('token')
+        )
+        config['token']=None
+        logging.info('Removing token from config file')
+        set_config(config, config_file)
+
+def set_config(config:dict, config_file:str) -> None:
     """Write updated configuration to config.json"""
     # If the config file contained a 'token' value, we will re-write the file to remove that value after storing it in the keyring
     with open(config_file, 'w') as file:
         json.dump(config, file)
 
-def process_download(download_request:dict, plugin_system_name:str, session:requests.Session):
+def process_download(download_request:dict, plugin_system_name:str, session:requests.Session) -> dict:
+    """Process a single download request and return a dictionary describing success/failure status"""
     result = {}
-    result["id"] = download_request["id"]
-    logging.info(f"Processing download id {result['id']}")
+    logging.info(f"Processing download id {download_request['id']}")
     url = download_request.get("url").replace(f"{plugin_system_name}://", "https://")
     logging.info(f"Download URL: {url}")
     logging.info(f"Output file: {download_request.get('file')}")
@@ -143,65 +159,87 @@ def process_download(download_request:dict, plugin_system_name:str, session:requ
         result["error"] = str(e)
     return result
 
-def main():
-        # Get path to the script directory
-        # If the application is run as a bundle, the PyInstaller bootloader
-        # # extends the sys module by a flag frozen=True and sets the app
-        # # path into variable _MEIPASS'.
-        # print("Using frozen config")
+def get_token(identifier:str) -> str:
+    logging.info(f"Retrieving keyring credential for {identifier}")
+    token_container=keyring.get_credential(identifier, "")
+    if token_container is None:
+        return None
+    
+    return token_container.password
+    
+
+def get_script_path() -> str:
+    # Get path to the script's parent directory
+    # If the application is run as a an executable bundle, the PyInstaller bootloader
+    # extends the sys module by a flag frozen=True and sys.executable reflects the path
+    # otherwise if running as a .py script use the path to __file__
     if getattr(sys, "frozen", False):
          scriptPath = os.path.dirname(os.path.abspath(sys.executable))
     else:
         scriptPath = os.path.dirname(os.path.abspath(__file__))
+    return scriptPath
+
+def main() -> None:
+    
+    # read the config from config.json, relative to the script/executable
+    scriptPath=get_script_path()
     config_file=os.path.join(scriptPath, 'config.json')
     config=get_config(config_file)
-    log_file=os.path.join(scriptPath, config.get('log','logfile.txt'))
+    
+    # it would be *nice* to init logging earlier, but...currently allow the config_file to specify an alternate log file so need to read config first
+    log_file=config.get('log', os.path.join(scriptPath, 'logfile.txt'))
     init_logging(log_file, level=config.get('log_level', 20))
+    if not config:
+        logging.warning(f'Configuration file not found at {config_file}, running with defaults')
+
     plugin_system_name = config.get('plugin_name', "TokenAuthDownload")
 
     # If 'token' has a value in config.json, use keyring to encrypt the token and then remove it from the config file  
-    if config.get('token', None) is not None:
-        logging.info('Storing token to keyring')
-        keyring.set_password(
-            config.get('plugin_name', 'TokenAuthDownload'),
-            "",
-            config.get('token')
-        )
-        config['token']=None
-        logging.info('Removing token from config file')
-        set_config(config, config_file)
+    update_token(config, config_file)
     
+    token=get_token(identifier=plugin_system_name)
+    if token:
+        logging.info('Access token retrieved')
+    else:
+        logging.error('Failed to retrieve access token')
     # process command-line arguments to get the --downloads parameter - the path to a json file containing a list of downloads
     args=get_args()
 
-    logging.info(f"Processing downloads from {args.downloads}")
-    logging.info(f"Retrieving keyring credential for {plugin_system_name}")
-    token_container=keyring.get_credential(plugin_system_name, "")
-    if token_container is None:
-        raise ValueError("No stored token was found, try adding 'token' to the config.json")
-    token=token_container.password
-
+    logging.info(f"Processing download request from file {args.downloads}")
+    # options is the dictionary provided by the BES Server, which contains the message ID, path to Inbox, and a list of download requests
     options = get_options(args.downloads)
-
-    results = []
+    
     # creating a requests.Session and apply headers for github downloads
     # These headers are reused for each download request
+    headers={
+             "User-Agent": "Wget/1.14 (linux-gnu)",
+             "Authorization": f"token {token}",
+             "Accept": "application/octet-stream"
+             }
+    
     session = requests.Session()
-    session.headers.update({"User-Agent": "Wget/1.14 (linux-gnu)"})
-    session.headers.update({"Authorization": f"token {token}"})
-    session.headers.update({"Accept": "application/octet-stream"})
+    session.headers.update(headers)
 
     # This is tuned for ease-of-use rather than performance.
-    # Currently each download is performed sequentially, not in parallel
+    # Currently each download is performed sequentially, not in parallel; room for improvement
+    results = []
     for download in options.get("downloads", []):
-        results.append(process_download(download, plugin_system_name, session))
+        # ideally we'd just let the download status return a '403 Forbidden' for bad/missing token, but GitHub complicates it
+        # by returning a 404 Not Found instead on auth failure.  So explicitly check for token and report a missing token status
+        # if it's not been configured. 
+        if token is None:
+            download_result={'success': False, 'error': 'Failed to retrieve auth token, try adding token to config.json'}
+        else:
+            download_result=process_download(download, plugin_system_name, session)
+
+        download_result['id']=download['id']
+        results.append(download_result)
 
     # Send download status results to the message file, where it will be read by the Server to provide action status / error messages to the console
+    # currently we only update status when the downloads have completed or failed; but it is possible to update status for downloads-in-progress.
     logging.info(f"Results: {str(results)}")
     sendResults(results, options)
     logging.info("Plugin finished")
 
 if __name__ == "__main__":
     main()
-    
-
