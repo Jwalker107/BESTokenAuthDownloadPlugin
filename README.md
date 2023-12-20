@@ -22,7 +22,13 @@ Create json install file, ex. "plugin_TokenAuthDownload" (filename should begin 
     }
 
 Place the file in C:\Program Files (x86)\BigFix Enterprise\BES Server\Mirror Server\Inbox.  The file is ingested by the BESRootServer and will be deleted from this directory when processed.
-Create the target directory (`C:\Program Files (x86)\BigFix Enterprise\BES Server\DownloadPlugins\TokenAuthDownload` ) and copy `dist\TokenAuthDownload\TokenAuthDownload.exe` to that directory.
+
+Create the target directory (`C:\Program Files (x86)\BigFix Enterprise\BES Server\DownloadPlugins\TokenAuthDownload` ) and copy `dist\TokenAuthDownload\TokenAuthDownload.exe` and `config.json` to that directory.
+
+To configure the plugin, 
+* create an authentication token (assuming github.com, select your profile -> Settings -> Developer Options -> Personal Access Tokens).
+
+* On the first run, and whenever your API token changes, update config.json and supply your token in the 'token' field.  The next time the plugin runs, the token will be removed from the config.json and stored in the system keyring (Windows Credential Manager, by default, on Windows; see Python Keyring module docs for info on other platforms)
 
 To remove the download plugin, create file "plugin_TokenAuthDownload" and place in the Mirror Server\Inbox directory:
 
@@ -32,12 +38,7 @@ To remove the download plugin, create file "plugin_TokenAuthDownload" and place 
        
     }
 
-To configure the plugin, 
-* create an authentication token (assuming github.com, select your profile -> Settings -> Developer Options -> Personal Access Tokens).
-* TODO - must run as the BESRootServer service account! or psexec -i -s cmd.exe !
-* Execute TokenAuthDownload.exe --set_token
-* When prompted, paste the Personal Access Token into the input field (the token will not be displayed on the screen)
-* If you wish to remove the saved token later, delete it using the Windows Credential Manager interface
-
 To use the plugin, create a download action message such as
-`prefetch MyReadme.md sha1:f919f61f325ff604e9359f8f448d3d1120cc81f2 size:79 TokenAuthDownload://raw.githubusercontent.com/Jwalker107/AuthDownloadPlugin/main/README.md sha256:82c9427a5aa78a76c5c89d003427b8f692a45a91c7aa50a09b93bb1cf3ace8d7`
+`prefetch bigfix.png sha1:9b84643d03b11e0d196c2967d7f870b1c212c165 size:4083 TokenAuthDownload://raw.githubusercontent.com/Jwalker107/AuthDownloadPlugin/blob/main/bigfix.png sha256:b658f7f01256d9f4a30270375050b829a99cc9ad8738463bc7c582fd6c3ee9bb`
+
+For troubleshooting, check the logfile.txt in the download plugin directory.  For more detailed logging, modify config.json and set log_level to 20 or to 10 (lower log level = more messages)
