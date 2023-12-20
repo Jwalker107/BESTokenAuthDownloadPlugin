@@ -1,0 +1,5 @@
+requests
+keyring
+argparse
+cryptography
+pyinstaller
