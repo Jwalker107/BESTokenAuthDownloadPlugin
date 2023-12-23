@@ -38,8 +38,43 @@ Create the target directory (`C:\Program Files (x86)\BigFix Enterprise\BES Serve
   - Hint: To use the same token for _all_ urls, a default regex to 'match anything' is `.*`
   - Hint: In a Regular Expression, the '`.`' symbol is a wildcard that matches any character.  To literally match the '.' symbols in `server.domain.com` one must escape the '.' character as `server\.domain\.com`.  Further, in JSON the backslash character must be escaped as `\\`, so to match a URL of `"https://<anything>.example.com/<anything>"` the config.json entry should read `"https://.*\\.example\\.com/.*"`
 * The next time the plugin runs (triggered by a download command in an Action Script), the all provided token values will be removed from the config.json and stored in the system keyring (Windows Credential Manager, by default, on Windows; see Python Keyring module docs for info on other platforms)
+  - _Note_: Because the keyring is stored per-user, saving the token in the keyring *must* be performed by the user account of the BESRootServer service (LocalSystem, by default); so the key should be stored by issuing a BigFix Action that references the plug-in, to ensure the Download PlugIn is executed by the BESRootServer process.
 
-To remove the download plugin from the BES Server, create file "plugin_TokenAuthDownload" and place in the Mirror Server\Inbox directory:
+## Example config.json:
+The following example configuration defines three configurations.  The url_configs and token for 'default' will be used for any download that does not match one of the other two example url_configs entries.  Three tokens may be stored; they will be named `TokenAuthDownload_default`, `TokenAuthConfig_internal-server-1`, or `TokenAuthConfig_github`.  On first run, the "token" value in the 'default' stanza will be removed from the configuration file and stored in the system keyring.  
+
+    {
+      "plugin_name": "TokenAuthDownload",
+      "log": "c:\\temp\\logfile.txt",
+      "log_level": 20,
+      "url_configs": [
+        {
+          "config_name": "default",
+          "url_list": [
+            ".*"
+          ],
+          "token": "pat_token_XXXXXXX"
+        },
+        {
+          "config_name": "internal-server-1",
+          "url_list": [
+            "https://.*\\.mycompany\\.example\\.com(:\\d+){0,1}/.*"
+          ],
+          "token": null
+        },
+        
+        {
+          "config_name": "github",
+          "url_list": [
+            "https://.*\\.github\\.com/.*",
+            "https://.*\\.githubusercontent\\.com/.*"
+          ],
+          "token": null
+        }
+      ]
+    }
+
+## To remove the download plugin from the BES Server, create file "plugin_TokenAuthDownload" and place in the Mirror Server\Inbox directory:
 
     {
        "message" : "remove",
@@ -62,6 +97,7 @@ For troubleshooting, check the logfile.txt in the download plugin directory.  Fo
 * Execute _either_ the compiled TokenAuthDownload.exe _or_ the Python script.  Use the command-line arguments `--downloads "path_to_sample_downloads.json"`.  i.e.
   - TokenAuthDownload.exe --downloads "c:\temp\sample-downloads.json"
 * Script execution logs are displayed to the terminal as well as to whatever log location is specified in the configuration file.
+* _Note_: Because the BESRootServer process executes in a distinct user context, you may need to test the plug-in by running in the same user account as the BESRootServer service; or repeat storing the personal access token to the keyring in both your own user account and in the BESRootServer service's account.
 
 Other useful info on GitHub downloads:
 * https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#get-a-release-asset
