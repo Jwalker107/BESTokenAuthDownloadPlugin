@@ -271,7 +271,11 @@ def main() -> None:
     
     # it would be *nice* to init logging earlier, but...currently allow the config_file to specify an alternate log file so need to read config first
     # supply a default of 'scriptPath\\logfile.txt' in case the config file could not be loaded or is missing this entry
-    log_file=config.get('log', os.path.join(scriptPath, 'logfile.txt'))
+    log_file=config.get('log', None)
+    
+    if log_file is None:
+        log_file = os.path.join(scriptPath, 'logfile.txt')
+
     init_logging(log_file, level=config.get('log_level', 20))
     
     # note: we need to continue the script even if the config could not be downloaded;
