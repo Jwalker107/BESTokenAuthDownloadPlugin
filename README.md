@@ -87,7 +87,7 @@ To use the plugin, create a download action message such as
 
 To get the URL to a release asset for a GitHub repo, you may use a REST API client or curl command to retrieve, such as
 
-    curl -H "Accept: application/json" -H "Authorization: token github_pat_XXX" https://api.github.com/repos/Jwalker107/AuthDownloadPlugin/releases
+    curl -H "Accept: application/json" -H "Authorization: token github_pat_XXX" https://api.github.com/repos/Jwalker107/BESTokenAuthDownloadPlugin/releases
 
 For troubleshooting, check the logfile.txt in the download plugin directory.  For more detailed logging, modify config.json and set log_level to 20 or to 10 (lower log level = more messages)
 
