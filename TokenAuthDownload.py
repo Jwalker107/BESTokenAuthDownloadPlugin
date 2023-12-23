@@ -294,6 +294,8 @@ def main() -> None:
     try:
         options = get_options(args.downloads)
     except Exception as e:
+        # Unlike the other exceptions where we want to continue (and report the exception as a download result),
+        # if we can't get the download request list there's no need to continue trying (there's nowhere else to report the error)
         logging.error(f'Failed to load file {args.downloads} with {str(e)}')
         raise e
 
