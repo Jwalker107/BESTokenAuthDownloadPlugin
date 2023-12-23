@@ -1,0 +1,8 @@
+{
+    "plugin_name": "TokenAuthDownload", 
+    "token-comment": "if 'token' is present and not null, the new token will be written to keyring and removed from this file",
+    "token": "your_personal_access_token_here",
+    "log-info-comment":"'log' may be a fully-qualified pathname to logfile. If missing or null, defaults to the download plugin directory.", 
+    "log": "c:\\temp\\logfile.txt", 
+    "log_level": 20
+}
