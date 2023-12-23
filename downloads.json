@@ -1,11 +1,11 @@
 {
-  "id": 1,
+  "id": 12345,
   "inbox": "C:\\Temp\\test_download",
   "downloads": [
     {
       "id": 5502,
       "file": "C:\\Temp\\test_download\\active_download_5502",
-      "url": "https://raw.githubusercontent.com/Jwalker107/AuthDownloadPlugin/main/README.md",
+      "url": "https://raw.githubusercontent.com/Jwalker107/BESTokenAuthDownloadPlugin/blob/main/README.md",
       "sha1": "",
       "size": null
     }
