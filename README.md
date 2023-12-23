@@ -29,11 +29,16 @@ Place the file in C:\Program Files (x86)\BigFix Enterprise\BES Server\Mirror Ser
 Create the target directory (`C:\Program Files (x86)\BigFix Enterprise\BES Server\DownloadPlugins\TokenAuthDownload` ) and copy `dist\TokenAuthDownload\TokenAuthDownload.exe` and `config.json` to that directory.
 
 To configure the plugin, 
-* create an authentication token (assuming github.com, select your profile -> Settings -> Developer Options -> Personal Access Tokens).
+* create (at least one) authentication token (assuming github.com, select your profile -> Settings -> Developer Options -> Personal Access Tokens).
+* Create a config.json file based upon the example sample-config.json provided in this repository, and place config.json in the `BES Server\DownloadPlugins\TokenAuthDownload` directory.
+* The config.json contains a stanza for `url_configs` allowing to specify multiple configurations.
+  - Each url configuration contains a a `url_list` array.  Each element is a Regular Expression.  The requested download URL is compared to each regular expression in the `url_list`.  If the requested url matches multiple `url_list` entries, the longest regular expression matched is selected.
+  - Update the `token` entry of each `url_config` when first installing the Download Plug-In, and whenever the given token is updated.
+  - Provide a unique `config_name` value for each `url_configs` entry. The top-level `plugin_name` is combined with each `url_configs.config_name` to determine the name of the token that will be stored in the Keyring (Windows Credential Manager on Windows, by default).  I.e. `TokenAuthPlugin_configuration1`
+  - Hint: To use the same token for _all_ urls, a default regex to 'match anything' is `.*`
+* The next time the plugin runs (triggered by a download command in an Action Script), the all provided token values will be removed from the config.json and stored in the system keyring (Windows Credential Manager, by default, on Windows; see Python Keyring module docs for info on other platforms)
 
-* On the first run, and whenever your API token changes, update config.json and supply your token in the 'token' field.  The next time the plugin runs (triggered by a download command in an Action Script), the token will be removed from the config.json and stored in the system keyring (Windows Credential Manager, by default, on Windows; see Python Keyring module docs for info on other platforms)
-
-To remove the download plugin, create file "plugin_TokenAuthDownload" and place in the Mirror Server\Inbox directory:
+To remove the download plugin from the BES Server, create file "plugin_TokenAuthDownload" and place in the Mirror Server\Inbox directory:
 
     {
        "message" : "remove",

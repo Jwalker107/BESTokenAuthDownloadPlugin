@@ -1,8 +1,30 @@
 {
-    "plugin_name": "TokenAuthDownload", 
-    "token-comment": "if 'token' is present and not null, the new token will be written to keyring and removed from this file",
-    "token": "your_personal_access_token_here",
-    "log-info-comment":"'log' may be a fully-qualified pathname to logfile. If missing or null, defaults to the download plugin directory.", 
-    "log": "c:\\temp\\logfile.txt", 
-    "log_level": 20
+  "plugin_name": "TokenAuthDownload",
+  "log": "c:\\temp\\logfile.txt",
+  "log_level": 20,
+  "url_configs": [
+    {
+      "config_name": "default",
+      "url_list": [
+        ".*"
+      ],
+      "token": null
+    },
+    {
+      "config_name": "internal-server-1",
+      "url_list": [
+        "https://.*\\.mycompany\\.example\\.com(:\\d+){0,1}/.*"
+      ],
+      "token": null
+    },
+    
+    {
+      "config_name": "github",
+      "url_list": [
+        "https://.*\\.github\\.com/.*",
+        "https://.*\\.githubusercontent\\.com/.*"
+      ],
+      "token": null
+    }
+  ]
 }
