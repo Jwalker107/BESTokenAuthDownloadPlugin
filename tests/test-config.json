@@ -8,7 +8,7 @@
       "url_list": [
         ".*"
       ],
-      "token": null
+      "token": ""
     },
     {
       "config_name": "github",
