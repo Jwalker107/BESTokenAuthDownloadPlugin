@@ -29,7 +29,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         # https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
-        python-version: ["3"]
+        python-version: ["3", "3.7"]
     steps:
       - uses: actions/checkout@v3
 
