@@ -30,8 +30,8 @@ def main() -> None:
 
     config_path_test = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
 
-    print("writing test config file")
-    with open(config_path_test, "w") as f:
+    print(f"writing test config file {config_path_test}")
+    with open(config_path_test, "w", encoding='utf-8') as f:
         json.dump(config_json, f, indent=2)
 
     print("run test")
