@@ -9,6 +9,7 @@ on:
       - "MANIFEST.in"
       - "pyproject.toml"
       - "requirements.txt"
+      - "tests/*.json"
       - ".github/workflows/test_build.yaml"
   pull_request:
     paths:
@@ -17,6 +18,7 @@ on:
       - "MANIFEST.in"
       - "pyproject.toml"
       - "requirements.txt"
+      - "tests/*.json"
       - ".github/workflows/test_build.yaml"
 
 jobs:
