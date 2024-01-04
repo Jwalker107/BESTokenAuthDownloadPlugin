@@ -29,21 +29,33 @@ jobs:
         python-version: ["3"]
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Install build tools
         run: pip install setuptools wheel build pyinstaller
+
       - name: Install requirements
         shell: bash
         run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
       - name: Test Run Without Error
         run: python TokenAuthDownload.py -h
+
+      - name: Run Tests
+        run: python tests/tests.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Test pyinstaller build
         run: pyinstaller --clean --onefile ./TokenAuthDownload.py
+
       - name: Test TokenAuthDownload binary runs
         run: ./dist/TokenAuthDownload -h
+
       # - name: Upload build artifact
       #   # https://github.com/actions/upload-artifact
       #   if: runner.os == 'Windows'

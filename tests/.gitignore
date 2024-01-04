@@ -1,0 +1,4 @@
+# ignore test specific items
+logfile.log
+active_download_*
+plugin_*

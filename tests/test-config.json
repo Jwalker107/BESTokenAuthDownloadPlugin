@@ -1,0 +1,22 @@
+{
+  "plugin_name": "TokenAuthDownload",
+  "log": "./tests/logfile.log",
+  "log_level": 20,
+  "url_configs": [
+    {
+      "config_name": "default",
+      "url_list": [
+        ".*"
+      ],
+      "token": null
+    },
+    {
+      "config_name": "github",
+      "url_list": [
+        "https://.*\\.github\\.com/.*",
+        "https://.*\\.githubusercontent\\.com/.*"
+      ],
+      "token": null
+    }
+  ]
+}

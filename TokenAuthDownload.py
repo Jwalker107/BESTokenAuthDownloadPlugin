@@ -41,13 +41,13 @@ def get_options(filepath:str) -> dict:
 
 def sendResults(results:list[dict], options:dict) -> None:
     """Create a message file detailing download results to the server"""
-    # sample message: 
+    # sample message:
     #  {"message": "status", "id": 1702650720, "status": [{"id": 57, "success": true, "error": null}]}
     message = {}
     message["message"] = "status"
     message["id"] = options["id"]
     message["status"] = results
-       
+
     # results file must be named `plugin_MESSAGEID` and must be stored in the Mirror Server/Inbox path (as specified in the original request options)
     results_file=os.path.join(options['inbox'], f"plugin_{options['id']}")
     logging.info(f'Saving results to file {results_file} : {str(message)}')
@@ -93,7 +93,7 @@ def update_token(config:dict, config_file:str) -> None:
             )
             url_config['token']=None
             logging.info(f'Removing token from config file for config {token_identifier}')
-    
+
     if updates_found:
         set_config(config, config_file)
 
@@ -109,11 +109,11 @@ def get_token(identifier:str) -> str:
     token_container=keyring.get_credential(identifier, "")
     if token_container is None:
         return None
-    
+
     return token_container.password
-    
+
 def match_url_to_config(url:str, config:dict) -> dict:
-    """Given a download URL and a configuration dictionary, return the url_config dictionary that most closely matches the URL""" 
+    """Given a download URL and a configuration dictionary, return the url_config dictionary that most closely matches the URL"""
     if not config.get('url_configs', False):
         return None
     longest_match_length=0
@@ -136,7 +136,7 @@ def match_url_to_config(url:str, config:dict) -> dict:
     return matched_config
 
     pass
-    
+
 
 def get_script_path() -> str:
     # Get path to the script's parent directory
@@ -163,7 +163,7 @@ def download_file_stream(
     # Perform a streaming download to reduce memory footprint (otherwise the entire file download loads in RAM)
     if url is None or output_file_path is None:
         raise ValueError(f"url or output_file_path not defined")
-    
+
     with session.get(url, stream=True, allow_redirects=True) as response:
         if not response.ok:
             raise ValueError(
@@ -242,7 +242,7 @@ def process_download_list(options:dict, config:dict, session:requests.Session) -
             download_result={'id': download['id'], 'success': False, 'error': f'Failed to retrieve auth token for {token_identifier}, try adding token to config.json'}
             results.append(download_result)
             continue
-        
+
         # Attempt to perform the download and report the actual download result
         session.headers.update({"Authorization": f"token {token}"})
         download_result=process_download(download, plugin_system_name, session)
@@ -252,8 +252,8 @@ def process_download_list(options:dict, config:dict, session:requests.Session) -
 
 def setup_session() -> requests.Session:
     """Return a requests.Session object with default headers applied"""
-    
-    # TODO - providing Accept: application/octet-stream is necessary for GitHub; consider moving headers to config.url_configs    
+
+    # TODO - providing Accept: application/octet-stream is necessary for GitHub; consider moving headers to config.url_configs
     headers={
              "User-Agent": "Wget/1.14 (linux-gnu)",
              "Accept": "application/octet-stream"
@@ -262,32 +262,36 @@ def setup_session() -> requests.Session:
     session.headers.update(headers)
     return session
 
-def main() -> None:
-    
+def main(downloads=None) -> None:
     # read the config from config.json, relative to the script/executable
     scriptPath=get_script_path()
     config_file=os.path.join(scriptPath, 'config.json')
     config=get_config(config_file)
-    
+
     # it would be *nice* to init logging earlier, but...currently allow the config_file to specify an alternate log file so need to read config first
     # supply a default of 'scriptPath\\logfile.txt' in case the config file could not be loaded or is missing this entry
     log_file=config.get('log', os.path.join(scriptPath, 'logfile.txt'))
     init_logging(log_file, level=config.get('log_level', 20))
-    
+
     # note: we need to continue the script even if the config could not be downloaded;
-    # we want to process the downloads.json in order to report the 'cannot load config' status to the server as if it were a download result 
+    # we want to process the downloads.json in order to report the 'cannot load config' status to the server as if it were a download result
     if not config:
         logging.warning(f'Configuration file not found or cannot be loaded at {config_file}')
 
-    
+
 
     # If 'token' has a value in any url_configs stanza in config.json, use keyring to encrypt the token and then remove it from the config file
     # Note - we want to update *all* tokens *anywhere* in the config, before attempting downloads, so we can be sure the plaintext
     # token is removed from the config file as soon as possible
     update_token(config, config_file)
-        
+
     # process command-line arguments to get the --downloads parameter - the path to a json file containing a list of downloads
-    args=get_args()
+    args = argparse.Namespace
+    if downloads:
+        # allow downloads to be passed in to main()
+        args.downloads=downloads
+    else:
+        args=get_args()
 
     logging.info(f"Processing download request from file {args.downloads}")
     # options is the dictionary provided by the BES Server, which contains the message ID, path to Inbox, and a list of download requests
