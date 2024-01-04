@@ -42,6 +42,8 @@ def main() -> None:
     with open(config_path_ubuntu, "w", encoding='utf-8') as f:
         json.dump(config_json, f, indent=2)
 
+    print(f"script path: {TokenAuthDownload.get_script_path()}")
+
     print("run test")
     # print(f"script path {TokenAuthDownload.get_script_path}")
     results = TokenAuthDownload.main(downloads="tests/test-downloads.json")
