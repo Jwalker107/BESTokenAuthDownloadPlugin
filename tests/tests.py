@@ -20,7 +20,7 @@ def main() -> None:
 
     # get absolute path to config file relative to the tests.py file location
     config_path_test = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test-config.json")
-    with open(config_path_test, "rb") as f:
+    with open(config_path_test, "r", encoding='utf-8') as f:
         config_json = json.load(f)
 
     # get the github token from the ENV, will be populated in github action automatically.
@@ -35,13 +35,6 @@ def main() -> None:
     with open(config_path, "w", encoding='utf-8') as f:
         json.dump(config_json, f, indent=2)
 
-    # put config file in tests folder:
-    config_path_ubuntu = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
-
-    print(f"writing test config file {config_path_ubuntu}")
-    with open(config_path_ubuntu, "w", encoding='utf-8') as f:
-        json.dump(config_json, f, indent=2)
-
     print(f"script path: {TokenAuthDownload.get_script_path()}")
 
     print("run test")
@@ -50,7 +43,6 @@ def main() -> None:
 
     print("cleanup test config files")
     os.remove(config_path)
-    os.remove(config_path_ubuntu)
 
     print("validate results.")
     print(results)
