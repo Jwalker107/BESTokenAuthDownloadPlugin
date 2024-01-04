@@ -41,6 +41,6 @@ jobs:
       - name: Test Run Without Error
         run: python TokenAuthDownload.py -h
       - name: Test pyinstaller build
-        run: pyinstaller --clean --collect-all besapi --onefile ./TokenAuthDownload.py
+        run: pyinstaller --clean --collect-all --onefile ./TokenAuthDownload.py
       - name: Test TokenAuthDownload binary runs
         run: ./dist/TokenAuthDownload -h
