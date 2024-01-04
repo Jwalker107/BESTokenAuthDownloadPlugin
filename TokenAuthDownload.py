@@ -88,7 +88,8 @@ def update_token(config:dict, config_file:str) -> None:
             logging.info(f'Storing token to keyring for {token_identifier}')
             keyring.set_password(
                 token_identifier,
-                "",
+                # dummy username:
+                "TokenAuthDownload",
                 url_config.get('token')
             )
             url_config['token']=None
