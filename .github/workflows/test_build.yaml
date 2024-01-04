@@ -1,0 +1,45 @@
+---
+name: test_build
+
+on:
+  push:
+    paths:
+      - "**.py"
+      - "setup.cfg"
+      - "MANIFEST.in"
+      - "pyproject.toml"
+      - "requirements.txt"
+      - ".github/workflows/test_build.yaml"
+  pull_request:
+    paths:
+      - "**.py"
+      - "setup.cfg"
+      - "MANIFEST.in"
+      - "pyproject.toml"
+      - "requirements.txt"
+      - ".github/workflows/test_build.yaml"
+
+jobs:
+  test_build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-lastest]
+        # https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
+        python-version: ["3"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install build tools
+        run: pip install setuptools wheel build pyinstaller
+      - name: Install requirements
+        run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Test Run Without Error
+        run: python TokenAuthDownload.py -h
+      - name: Test pyinstaller build
+        run: pyinstaller --clean --collect-all besapi --onefile ./TokenAuthDownload.py
+      - name: Test TokenAuthDownload binary runs
+        run: ./dist/TokenAuthDownload -h
