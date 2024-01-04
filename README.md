@@ -99,12 +99,15 @@ For troubleshooting, check the logfile.txt in the download plugin directory.  Fo
 * Script execution logs are displayed to the terminal as well as to whatever log location is specified in the configuration file.
 * _Note_: Because the BESRootServer process executes in a distinct user context, you may need to test the plug-in by running in the same user account as the BESRootServer service; or repeat storing the personal access token to the keyring in both your own user account and in the BESRootServer service's account.
 
-Other useful info on GitHub downloads:
+## Other useful info on GitHub downloads:
 * https://docs.github.com/en/rest/releases/assets?apiVersion=2022-11-28#get-a-release-asset
 * https://github.com/orgs/community/discussions/47453
 * https://gist.github.com/josh-padnick/fdae42c07e648c798fc27dec2367da21
 * https://stackoverflow.com/questions/20396329/how-to-download-github-release-from-private-repo-using-command-line
 
-To-Do:
+## Related:
+* https://forum.bigfix.com/t/introduction-to-bigfix-download-plugins-technical/18867
+
+## To-Do:
 * Handle other authentication types (BASIC auth via username/password)
 * Allow adding custom headers via config.json (as well as per-server/per-url headers)
