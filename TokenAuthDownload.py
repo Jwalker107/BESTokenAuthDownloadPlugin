@@ -107,7 +107,7 @@ def set_config(config:dict, config_file:str) -> None:
 
 def get_token(identifier:str) -> str:
     logging.info(f"Retrieving keyring credential for {identifier}")
-    token_container=keyring.get_credential(identifier, "")
+    token_container=keyring.get_credential(identifier, "TokenAuthDownload")
     if token_container is None:
         return None
 

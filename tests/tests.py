@@ -35,6 +35,11 @@ def main() -> None:
     with open(config_path, "w", encoding='utf-8') as f:
         json.dump(config_json, f, indent=2)
 
+    # with open(config_path, "r", encoding='utf-8') as f:
+    #     config_json_real = json.load(f)
+
+    # print(f"config: {config_json_real}")
+
     print(f"script path: {TokenAuthDownload.get_script_path()}")
 
     print("run test")
