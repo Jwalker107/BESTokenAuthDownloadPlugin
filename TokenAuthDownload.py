@@ -311,5 +311,8 @@ def main(downloads=None) -> None:
     sendResults(results, options)
     logging.info("Plugin finished")
 
+    # return results in case this function is called elsewhere for processing.
+    return results
+
 if __name__ == "__main__":
     main()

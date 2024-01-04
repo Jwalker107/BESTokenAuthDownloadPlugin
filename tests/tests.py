@@ -6,10 +6,12 @@ import json
 import os
 import sys
 
+# add repo root path to be available for import
 sys.path.append(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )
 
+# import the main python module for this repo TokenAuthDownload.py
 import TokenAuthDownload
 
 def main() -> None:
@@ -33,10 +35,18 @@ def main() -> None:
         json.dump(config_json, f, indent=2)
 
     print("run test")
-    TokenAuthDownload.main(downloads="tests/test-downloads.json")
+    results = TokenAuthDownload.main(downloads="tests/test-downloads.json")
 
     print("cleanup test config file")
     os.remove(config_path_test)
+
+    print("validate results.")
+    print(results)
+    # examine each result:
+    for result in results:
+        # if any result returns FALSE, exit with -1
+        if not result["success"]:
+            sys.exit(-1)
 
 
 if __name__ == "__main__":
