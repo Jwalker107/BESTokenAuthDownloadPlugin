@@ -28,17 +28,27 @@ def main() -> None:
 
     config_json["url_configs"][1]["token"] = github_token
 
-    config_path_test = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
+    # put config file in root of repo:
+    config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config.json")
 
-    print(f"writing test config file {config_path_test}")
-    with open(config_path_test, "w", encoding='utf-8') as f:
+    print(f"writing test config file {config_path}")
+    with open(config_path, "w", encoding='utf-8') as f:
+        json.dump(config_json, f, indent=2)
+
+    # put config file in tests folder:
+    config_path_ubuntu = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+
+    print(f"writing test config file {config_path_ubuntu}")
+    with open(config_path_ubuntu, "w", encoding='utf-8') as f:
         json.dump(config_json, f, indent=2)
 
     print("run test")
+    # print(f"script path {TokenAuthDownload.get_script_path}")
     results = TokenAuthDownload.main(downloads="tests/test-downloads.json")
 
-    print("cleanup test config file")
-    os.remove(config_path_test)
+    print("cleanup test config files")
+    os.remove(config_path)
+    os.remove(config_path_ubuntu)
 
     print("validate results.")
     print(results)
