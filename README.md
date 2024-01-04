@@ -1,6 +1,8 @@
 # TokenAuthDownload
 BigFix Download Plug-In for Authenticated HTTPS downloads using token authentication (i.e. GitHub)
 
+Requires Python 3.9+
+
 **This is not a supported BigFix tool and is for demonstration purposes.  Use at your own risk**
 
 ## To build the plugin (assuming Python is already installed)
@@ -28,7 +30,7 @@ Place the file in C:\Program Files (x86)\BigFix Enterprise\BES Server\Mirror Ser
 
 Create the target directory (`C:\Program Files (x86)\BigFix Enterprise\BES Server\DownloadPlugins\TokenAuthDownload` ) and copy `dist\TokenAuthDownload\TokenAuthDownload.exe` and `config.json` to that directory.
 
-## To configure the plugin, 
+## To configure the plugin,
 * create (at least one) authentication token (assuming github.com, select your profile -> Settings -> Developer Options -> Personal Access Tokens).
 * Create a config.json file based upon the example sample-config.json provided in this repository, and place config.json in the `BES Server\DownloadPlugins\TokenAuthDownload` directory.
 * The config.json contains a stanza for `url_configs` allowing to specify multiple configurations.
@@ -41,7 +43,7 @@ Create the target directory (`C:\Program Files (x86)\BigFix Enterprise\BES Serve
   - _Note_: Because the keyring is stored per-user, saving the token in the keyring *must* be performed by the user account of the BESRootServer service (LocalSystem, by default); so the key should be stored by issuing a BigFix Action that references the plug-in, to ensure the Download PlugIn is executed by the BESRootServer process.
 
 ## Example config.json:
-The following example configuration defines three configurations.  The url_configs and token for 'default' will be used for any download that does not match one of the other two example url_configs entries.  Three tokens may be stored; they will be named `TokenAuthDownload_default`, `TokenAuthConfig_internal-server-1`, or `TokenAuthConfig_github`.  On first run, the "token" value in the 'default' stanza will be removed from the configuration file and stored in the system keyring.  
+The following example configuration defines three configurations.  The url_configs and token for 'default' will be used for any download that does not match one of the other two example url_configs entries.  Three tokens may be stored; they will be named `TokenAuthDownload_default`, `TokenAuthConfig_internal-server-1`, or `TokenAuthConfig_github`.  On first run, the "token" value in the 'default' stanza will be removed from the configuration file and stored in the system keyring.
 
     {
       "plugin_name": "TokenAuthDownload",
@@ -62,7 +64,7 @@ The following example configuration defines three configurations.  The url_confi
           ],
           "token": null
         },
-        
+
         {
           "config_name": "github",
           "url_list": [
@@ -79,7 +81,7 @@ The following example configuration defines three configurations.  The url_confi
     {
        "message" : "remove",
        "protocol" : "TokenAuthDownload"
-       
+
     }
 
 To use the plugin, create a download action message such as
