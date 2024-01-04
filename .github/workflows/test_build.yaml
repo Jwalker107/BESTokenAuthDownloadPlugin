@@ -36,6 +36,7 @@ jobs:
       - name: Install build tools
         run: pip install setuptools wheel build pyinstaller
       - name: Install requirements
+        shell: bash
         run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Test Run Without Error
         run: python TokenAuthDownload.py -h
