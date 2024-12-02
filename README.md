@@ -5,6 +5,13 @@ Requires Python 3.9+
 
 **This is not a supported BigFix tool and is for demonstration purposes.  Use at your own risk**
 
+# Important:
+GitHub allows only limited download methods using authentication tokens.  You will not be able to download directly from https://www.github.com/username/Repo/readme.md, for example.
+To download using this plugin, you need to have created Tags/Releases in the repo, then use the API urls to download Assets from a Tag.
+For example to view the Assets of this project, after authenticating we may browse to https://api.github.com/repos/Jwalker107/BESTokenAuthDownloadPlugin/releases
+This provides a list of Tags and Assets for each Release.
+We can use the URLs provided in that output to download via this plugin.  The download URLs should start with https://api.github.com
+
 ## To build the plugin (assuming Python is already installed)
 * Install requirements
   - pip install -r requirements.txt
