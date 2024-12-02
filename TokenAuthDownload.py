@@ -255,9 +255,10 @@ def setup_session() -> requests.Session:
     """Return a requests.Session object with default headers applied"""
 
     # TODO - providing Accept: application/octet-stream is necessary for GitHub; consider moving headers to config.url_configs
+    # application/vnd.github+json is the Accept header for GitHub API tarball downloads
     headers={
              "User-Agent": "Wget/1.14 (linux-gnu)",
-             "Accept": "application/octet-stream"
+             "Accept": "application/vnd.github+json,application/octet-stream"
              }
     session = requests.Session()
     session.headers.update(headers)
